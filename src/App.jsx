@@ -1,7 +1,7 @@
 import React from 'react';
 import defaultDataset from './dataset';
 import './assets/styles/style.css';
-import {AnswersList} from './components/index'
+import {AnswersList, Chats} from './components/index'
 
 export default class App extends React.Component {
   constructor(props) {
@@ -14,32 +14,80 @@ export default class App extends React.Component {
       dataset: defaultDataset,
       open: false
     }
+    // コールバック関数をbind(renderするたびに関数が生成されパフォーマンスが落ちるためbind)
+    this.selectAnswer = this.selectAnswer.bind(this);
   }
 
   /**
-   * currentIdの値からdataset.jsからanswersのデータ(配列)を受け取る
+   * 次の質問を表示
+   * 
+   * @param {string} nextQuestionId 
    */
-  initAnswer = () => {
-    const initDataset = this.state.dataset[this.state.currentId];
-    const initAnswers = initDataset.answers;
-    this.setState({
-      answers: initAnswers
+  displayNextQuestion = (nextQuestionId) => {
+    const chats = this.state.chats;
+    chats.push({
+      text: this.state.dataset[nextQuestionId].question,
+      type: 'question'
     })
+
+    this.setState({
+      answers: this.state.dataset[nextQuestionId].answers,
+      chats: chats,
+      currentId: nextQuestionId
+    })
+  }
+
+  /**
+   * 回答内容に応じて、displayNextQuestion()で次の質問を表示
+   * 
+   * @param {string} selectedAnswer 回答内容
+   * @param {string} nextQuestionId 次に表示する質問のId
+   */
+  selectAnswer = (selectedAnswer, nextQuestionId) => {
+    switch (true) {
+      // 初期の回答(空)の場合
+      case (nextQuestionId === 'init'):
+        // initの質問内容の表示
+        this.displayNextQuestion(nextQuestionId);
+        break;
+
+      // その他の場合
+      default:
+        // 現在のチャット内容を取得
+        const chats = this.state.chats;
+        // 回答内容をchats履歴に追加
+        chats.push({
+          text: selectedAnswer,
+          type: 'answer',
+        })
+    
+        // chatsのstateの更新
+        this.setState({
+          chats: chats
+        })
+
+        // 引数で受け取った次の質問のIdを渡し、質問を表示
+        this.displayNextQuestion(nextQuestionId);
+        break;
+    }
   }
 
   /**
    * render()後に実行
    */
   componentDidMount() {
-    // answersのデータ(配列)を受け取るメソッドの実行
-    this.initAnswer();
+    // 初期は回答がないため空を宣言
+    const initAnswer = "";
+    // 初期の回答を送信(回答：なし、Id：init)
+    this.selectAnswer(initAnswer, this.state.currentId);
   }
 
   render() {
     return (
       <section className="c-section">
         <div className="c-box">
-        <AnswersList answers={this.state.answers} />
+          <Chats chats={this.state.chats} />
+          <AnswersList answers={this.state.answers} select={this.selectAnswer} />
         </div>
       </section>
     );

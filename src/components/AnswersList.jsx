@@ -13,7 +13,7 @@ const AnswersList = (props) => {
                 // propsから受け取ったanswersの連想配列をmap関数でループ
                 // keyは渡さないとエラーになるため必要
                 props.answers.map((value, index) => {
-                    return <Answer content={value.content} key={index.toString()}  />
+                    return <Answer content={value.content} nextId={value.nextId} key={index.toString()} select={props.select}  />
                 })
             }
         </div>
