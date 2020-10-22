@@ -1,15 +1,18 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import {Chat} from './index';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-      width: '100%',
-      maxWidth: '36ch',
-      backgroundColor: theme.palette.background.paper,
-    },
-}));
+const useStyles = makeStyles(() => (
+    createStyles({
+        "chats": {
+            height: 400,
+            padding: '0px',
+            overflow: 'auto'
+        }
+    })
+
+));
 
 /**
  * チャット枠の生成
@@ -22,7 +25,7 @@ const Chats = (props) => {
     const classes = useStyles();
 
     return (
-        <List className={classes.root}>
+        <List className={classes.chats}>
             {
                 // propsから受け取ったchatsの連想配列をmap関数でループ
                 props.chats.map((chat, index) => {
