@@ -25,7 +25,7 @@ const Chats = (props) => {
     const classes = useStyles();
 
     return (
-        <List className={classes.chats}>
+        <List className={classes.chats} id={"scroll-area"}>
             {
                 // propsから受け取ったchatsの連想配列をmap関数でループ
                 props.chats.map((chat, index) => {

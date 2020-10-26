@@ -47,8 +47,16 @@ export default class App extends React.Component {
     switch (true) {
       // 初期の回答(空)の場合
       case (nextQuestionId === 'init'):
-        // initの質問内容の表示
-        this.displayNextQuestion(nextQuestionId);
+        // initの質問内容の表示、setTimeoutでやや遅延させる
+        setTimeout( () => this.displayNextQuestion(nextQuestionId), 500); 
+        break;
+      
+      // URLの場合(httpsが含む場合)、リンクを表示
+      case (/^https:*/.test(nextQuestionId)):
+        const a = document.createElement('a');
+        a.href = nextQuestionId;
+        a.target = '_blank';
+        a.click();
         break;
 
       // その他の場合
@@ -66,8 +74,8 @@ export default class App extends React.Component {
           chats: chats
         })
 
-        // 引数で受け取った次の質問のIdを渡し、質問を表示
-        this.displayNextQuestion(nextQuestionId);
+        // 引数で受け取った次の質問のIdを渡し、質問を表示、setTimeoutでやや遅延させる
+        setTimeout( () => this.displayNextQuestion(nextQuestionId), 1000); 
         break;
     }
   }
@@ -80,6 +88,22 @@ export default class App extends React.Component {
     const initAnswer = "";
     // 初期の回答を送信(回答：なし、Id：init)
     this.selectAnswer(initAnswer, this.state.currentId);
+  }
+
+  /**
+   * state変更後の再render()後に実行
+   * 
+   * @param {*} prevProps 前回のProps
+   * @param {*} PrevState 前回のPrevState
+   * @param {*} snapshot  スナップショット
+   */
+  componentDidUpdate(prevProps, PrevState, snapshot) {
+    // チャットエリアのDOMを取得
+    const scrollArea = document.getElementById('scroll-area');
+    // scrollAreaが存在する場合、上にスクロール
+    if(scrollArea){
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
   }
 
   render() {
