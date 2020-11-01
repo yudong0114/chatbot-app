@@ -2,6 +2,7 @@ import React from 'react';
 import defaultDataset from './dataset';
 import './assets/styles/style.css';
 import {AnswersList, Chats} from './components/index'
+import FormDialog from './components/forms/FormDialog'
 
 export default class App extends React.Component {
   constructor(props) {
@@ -16,6 +17,8 @@ export default class App extends React.Component {
     }
     // コールバック関数をbind(renderするたびに関数が生成されパフォーマンスが落ちるためbind)
     this.selectAnswer = this.selectAnswer.bind(this);
+    this.handleClickOpen = this.handleClickOpen.bind(this);
+    this.handleClose = this.handleClose.bind(this);
   }
 
   /**
@@ -50,6 +53,11 @@ export default class App extends React.Component {
         // initの質問内容の表示、setTimeoutでやや遅延させる
         setTimeout( () => this.displayNextQuestion(nextQuestionId), 500); 
         break;
+
+      // 問合せる回答の場合
+      case (nextQuestionId === 'contact'):
+        this.handleClickOpen();
+        break;
       
       // URLの場合(httpsが含む場合)、リンクを表示
       case (/^https:*/.test(nextQuestionId)):
@@ -79,6 +87,20 @@ export default class App extends React.Component {
         break;
     }
   }
+
+  /**
+   * お問合せモーダルのクリック時にstateをtrueに変更(モーダルを開く)
+   */
+  handleClickOpen = () => {
+    this.setState({open: true});
+  };
+
+  /**
+   * お問合せモーダルのクリック時にstateをfalseに変更(モーダルを閉じる)
+   */
+  handleClose = () => {
+      this.setState({open: false});
+  };
 
   /**
    * render()後に実行
@@ -112,6 +134,7 @@ export default class App extends React.Component {
         <div className="c-box">
           <Chats chats={this.state.chats} />
           <AnswersList answers={this.state.answers} select={this.selectAnswer} />
+          <FormDialog open={this.state.open} handleClose={this.handleClose} />
         </div>
       </section>
     );
