@@ -68,7 +68,7 @@ export default class FormDialog extends React.Component {
                   "■お問合せ内容： \n" + description
         }
 
-        // slackのwebhookを変数に格納
+        // slackのwebhookを変数に格納(.env.localにWEBHOOKの宣言)
         const url = process.env.REACT_APP_SLACK_WEBHOOK_URL;
 
         // APIにデータを送信
