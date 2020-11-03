@@ -1,8 +1,8 @@
 import React from 'react';
-import defaultDataset from './dataset';
 import './assets/styles/style.css';
 import {AnswersList, Chats} from './components/index'
 import FormDialog from './components/forms/FormDialog'
+import {db} from './firebase/index'
 
 export default class App extends React.Component {
   constructor(props) {
@@ -12,7 +12,7 @@ export default class App extends React.Component {
       answers: [],
       chats: [],
       currentId: "init",
-      dataset: defaultDataset,
+      dataset: {},
       open: false
     }
     // コールバック関数をbind(renderするたびに関数が生成されパフォーマンスが落ちるためbind)
@@ -103,13 +103,42 @@ export default class App extends React.Component {
   };
 
   /**
+   * datasetを初期化
+   * 
+   * @param {object} dataset 引数のdatasetをstateを更新
+   */
+  initDataset = (dataset) => {
+    // stateの更新
+    this.setState({dataset: dataset});
+  }
+
+  /**
    * render()後に実行
    */
   componentDidMount() {
-    // 初期は回答がないため空を宣言
-    const initAnswer = "";
-    // 初期の回答を送信(回答：なし、Id：init)
-    this.selectAnswer(initAnswer, this.state.currentId);
+    // 非同期処理(async付きの即時関数)
+    (async() => {
+      // 現在のstateを定数に
+      const dataset = this.state.dataset;
+      // questionsに入っているdocumentsのデータを取得
+      await db.collection('questions').get().then(snapshots => {
+        // 取得したdocumentsをループ
+        snapshots.forEach(doc => {
+          // 質問のID(automation_toolなど)
+          const id = doc.id;
+          // 質問や回答の内容(questionやanswersなど)
+          const data = doc.data();
+          // dataset定数に挿入
+          dataset[id] = data;
+        })
+      });
+      // datasetの初期化関数を実行
+      this.initDataset(dataset);
+      // 初期は回答がないため空を宣言
+      const initAnswer = "";
+      // 初期の回答を送信(回答：なし、Id：init)
+      this.selectAnswer(initAnswer, this.state.currentId);
+    })();
   }
 
   /**
